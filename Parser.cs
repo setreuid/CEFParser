@@ -16,7 +16,7 @@ namespace CEFParser
      * @author 조태호(setreuid@naver.com)
      * @date   2018. 12. 26.
      * 
-     * 기본제공되는 .NET WINFORM WEBBROWSER 객체를 사용하여 웹 파싱 처리를 하는데 목적을 가진다.
+     * CefSharp 패키지를 사용하여 웹 파싱 처리를 하는데 목적을 가진다.
      * 
      * 이 모듈에서 사용하는 명칭과 설명은 다음과 같다.
      * 1. Parser  : 파싱 클래스 명칭
