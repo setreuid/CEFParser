@@ -344,7 +344,7 @@ namespace CEFParser.Waiter.Selector
         public async Task SetAttributeAsync(String attributeName, String attributeValue)
         {
             await (await GetDocumentAsync()).EvaluateScriptAsync(
-                        String.Format("(function(){{ {0}[\"{1}\"] = \"{2}\" }})()",
+                        String.Format("(function(){{ {0}[0][\"{1}\"] = \"{2}\" }})()",
                             this.selector, attributeName, attributeValue));
         }
 
