@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\DownloadHandler.cs" />
     <Compile Include="Utils\IETools.cs" />
+    <Compile Include="Utils\LifeSpanHandler.cs" />
     <Compile Include="Waiter\Behavior\Behavior.cs" />
     <Compile Include="Waiter\Behavior\ElementExists.cs" />
     <Compile Include="Waiter\Behavior\ElementNotEmpty.cs" />
