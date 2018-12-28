@@ -15,12 +15,21 @@ namespace CEFParser.Utils
 
         private List<String> ignores;
 
+        private List<String> agrees;
+
         private String downloadSrc = String.Empty;
 
-        
+
         public DownloadHandler SetFileIgnores(List<String> ignores)
         {
             this.ignores = ignores;
+            return this;
+        }
+
+
+        public DownloadHandler SetFileAgrees(List<String> agrees)
+        {
+            this.agrees = agrees;
             return this;
         }
 
@@ -30,15 +39,23 @@ namespace CEFParser.Utils
             this.downloadSrc = src;
             return this;
         }
+        
 
-
-        public void OnBeforeDownload(IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
+        public void OnBeforeDownload(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
         {
             if (!callback.IsDisposed)
             {
                 using (callback)
                 {
-                    if (this.ignores == null
+                    // 직접 다운받아야 하는 파일의 경우 (ex: ActiveX)
+                    if (this.agrees != null
+                        && this.agrees.IndexOf(downloadItem.SuggestedFileName) > -1)
+                    {
+                        callback.Continue(downloadItem.SuggestedFileName, showDialog: true);
+                    }
+
+                    // 자동으로 받아지는 경우
+                    else if (this.ignores == null
                         || this.ignores.IndexOf(downloadItem.SuggestedFileName) == -1)
                     {
                         OnBeforeDownloadFired?.Invoke(this, downloadItem);
@@ -53,9 +70,13 @@ namespace CEFParser.Utils
             }
         }
 
-        public void OnDownloadUpdated(IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback)
+
+        public void OnDownloadUpdated(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback)
         {
-            OnDownloadUpdatedFired?.Invoke(this, downloadItem);
+            if (downloadItem.IsComplete || downloadItem.IsCancelled)
+            {
+                OnDownloadUpdatedFired?.Invoke(this, downloadItem);
+            }
         }
     }
 }

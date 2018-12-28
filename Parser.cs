@@ -46,15 +46,22 @@ namespace CEFParser
         }
 
 
+        public void Close()
+        {
+            this.watcher.Close();
+        }
+
+
         /**
          * HTML DOM 객체 추적 작업 추가
          * @param waiter
          */
-        public void AddWaiter(Waiter.Waiter waiter) {
+        public void AddWaiter(Waiter.Waiter waiter)
+        {
             waiter.SetWebBrowser(this.webBrowser);
             this.watcher.Add(waiter);
         }
-
+        
 
         /**
          * JS 스크립트 실행
@@ -71,9 +78,81 @@ namespace CEFParser
          * @param jsString
          * @param frameIndex
          */
-        public void ExecuteJS(String jsString, String frameName)
+        public async Task ExecuteJSAsync(String jsString, String frameName)
         {
-            ExecuteJS(jsString, webBrowser.GetBrowser().GetFrame(frameName));
+            ExecuteJS(jsString, await GetDocumentByIdAsync(webBrowser.GetMainFrame(), frameName));
+        }
+
+
+        /**
+         * JS 스크립트 실행
+         * @param jsString
+         * @param frameIndex
+         */
+        public async Task ExecuteJSAsync(String jsString, String[] framesName)
+        {
+            ExecuteJS(jsString, await GetDocumentAsync(framesName));
+        }
+
+
+        /**
+         * Document 가져오기
+         * frameIndex 설정시 해당 프레임셋의 내부에서 실행하도록 하기 위해
+         * @return HtmlDocument
+         */
+        public async Task<IFrame> GetDocumentAsync(String[] framesName)
+        {
+            IFrame frame = this.webBrowser.GetMainFrame();
+            foreach (String fName in framesName)
+            {
+                frame = await GetDocumentByIdAsync(frame, fName);
+            }
+
+            return frame;
+        }
+
+
+        /**
+         * IFrame 가져오기
+         * @param  parentFrame
+         * @param  fName
+         * @return 검출된 프레임
+         */
+        public static async Task<IFrame> GetDocumentByNameAsync(IFrame parentFrame, String fName)
+        {
+            if (fName == String.Empty) return parentFrame;
+
+            foreach (var i in parentFrame.Browser.GetFrameIdentifiers())
+            {
+                var obj = parentFrame.Browser.GetFrame(i);
+                var response = await obj.EvaluateScriptAsync("(function() { return window.name })()");
+
+                if ((string)response.Result == fName) return obj;
+            }
+
+            return null;
+        }
+
+
+        /**
+         * IFrame 가져오기
+         * @param  parentFrame
+         * @param  fName
+         * @return 검출된 프레임
+         */
+        public static async Task<IFrame> GetDocumentByIdAsync(IFrame parentFrame, String fName)
+        {
+            if (fName == String.Empty) return parentFrame;
+
+            foreach (var i in parentFrame.Browser.GetFrameIdentifiers())
+            {
+                var obj = parentFrame.Browser.GetFrame(i);
+                var response = await obj.EvaluateScriptAsync("(function() { return !window.frameElement ? '' : window.frameElement.id || window.frameElement.name })()");
+
+                if ((string)response.Result == fName) return obj;
+            }
+
+            return null;
         }
 
 

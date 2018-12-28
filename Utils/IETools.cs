@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CEFParser.Utils
 {
-    class IETools
+    class CEFTools
     {
         public static String querySelectorAll = @"(function(d,s){d=document,s=d.createStyleSheet();d.querySelectorAll=function(r,c,i,j,a){a=d.all,c=[],r=r.replace(/\[for\b/gi,'[htmlFor').split(',');for(i=r.length;i--;){s.addRule(r[i],'k:v');for(j=a.length;j--;)a[j].currentStyle.k&&c.push(a[j]);s.removeRule(0)}return c}})()";
 
@@ -50,9 +50,11 @@ namespace CEFParser.Utils
         public static String isHidden = @"
             (function() { 
                 window.isHidden = function (el) {
-                    var style = window.getComputedStyle(el);
-                    if (style == null) return false;
-                    return ((style.display === 'none') || (style.visibility === 'hidden'))
+                    if ('getComputedStyle' in window && el != null) {
+                        var style = window.getComputedStyle(el);
+                        if (style == null) return false;
+                        return ((style.display === 'none') || (style.visibility === 'hidden'))
+                    } else { return false; }
                 }
             })()
         ";

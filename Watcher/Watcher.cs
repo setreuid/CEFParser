@@ -60,6 +60,12 @@ namespace CEFParser.Watcher
         }
 
 
+        public void Close()
+        {
+            this.mainTimer.Enabled = false;
+        }
+
+
         /**
          * 주기적 체크 수행
          * @param sender

@@ -20,6 +20,8 @@ namespace CEFParser.Waiter.Selector
 
         private String frameName = String.Empty;
 
+        private String[] framesName = null;
+
 
         /**
          * 생성자
@@ -38,11 +40,24 @@ namespace CEFParser.Waiter.Selector
          * CSS Selctor
          * @param plainText
          */
-        public CSS(String plainText, String frameId)
+        public CSS(String plainText, String frameName)
         {
             this.uid = String.Format("CSSSELECTOR{0}{1}", DateTime.Now.Ticks.ToString(), (new Random()).Next(0, 1000));
             this.selector = String.Format("document.querySelectorAll(\"{0}\")", plainText);
-            this.frameName = frameId;
+            this.frameName = frameName;
+        }
+
+
+        /**
+         * 생성자
+         * CSS Selctor
+         * @param plainText
+         */
+        public CSS(String plainText, String[] framesName)
+        {
+            this.uid = String.Format("CSSSELECTOR{0}{1}", DateTime.Now.Ticks.ToString(), (new Random()).Next(0, 1000));
+            this.selector = String.Format("document.querySelectorAll(\"{0}\")", plainText);
+            this.framesName = framesName;
         }
 
 
@@ -111,14 +126,21 @@ namespace CEFParser.Waiter.Selector
          */
         public async Task<IFrame> GetDocumentAsync()
         {
-            if (this.frameName == String.Empty) return this.webBrowser.GetMainFrame();
+            if (this.frameName == String.Empty 
+                && this.framesName == null) return this.webBrowser.GetMainFrame();
 
-            foreach (var i in this.webBrowser.GetBrowser().GetFrameIdentifiers())
+            if (this.frameName != String.Empty)
             {
-                var obj = webBrowser.GetBrowser().GetFrame(i);
-                var response = await obj.EvaluateScriptAsync("(function() { return window.name })()");
-
-                if ((string) response.Result == this.frameName) return obj;
+                return await Parser.GetDocumentByNameAsync(this.webBrowser.GetMainFrame(), this.frameName);
+            }
+            else if (this.framesName != null)
+            {
+                IFrame frame = this.webBrowser.GetMainFrame();
+                foreach (String fName in this.framesName)
+                {
+                    frame = await Parser.GetDocumentByIdAsync(frame, fName);
+                }
+                return frame;
             }
 
             return null;
@@ -333,7 +355,7 @@ namespace CEFParser.Waiter.Selector
          */
         private async Task InjectCreateStyleSheetAsync()
         {
-            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.IETools.createStyleSheet);
+            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.CEFTools.createStyleSheet);
         }
 
 
@@ -343,7 +365,7 @@ namespace CEFParser.Waiter.Selector
          */
         private async Task InjectQuerySelectorAllAsync()
         {
-            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.IETools.querySelectorAll2);
+            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.CEFTools.querySelectorAll2);
         }
 
         
@@ -352,7 +374,7 @@ namespace CEFParser.Waiter.Selector
          */
         private async Task InjectIsHiddenAsync()
         {
-            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.IETools.isHidden);
+            (await GetDocumentAsync()).ExecuteJavaScriptAsync(Utils.CEFTools.isHidden);
         }
 
 
