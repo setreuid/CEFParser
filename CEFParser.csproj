@@ -61,6 +61,7 @@
     <Compile Include="Waiter\Behavior\ElementNotEqualsInnerHTML.cs" />
     <Compile Include="Waiter\Behavior\ElementUnVisible.cs" />
     <Compile Include="Waiter\Behavior\ElementVisible.cs" />
+    <Compile Include="Waiter\Behavior\WindowExists.cs" />
     <Compile Include="Waiter\Selector\CSS.cs" />
     <Compile Include="Waiter\Selector\Selector.cs" />
     <Compile Include="Waiter\Waiter.cs" />
